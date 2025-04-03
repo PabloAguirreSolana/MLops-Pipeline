@@ -19,4 +19,4 @@ variables:
 
   # For pipeline reference
   resource_group: pablo_default_group
-  aml_workspace: A1_Workspace
+  aml_workspace: Workspace_Pipelines
