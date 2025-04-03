@@ -22,10 +22,10 @@ outputs:
     path: azureml://datastores/newblobstorepipeline/paths/cars_data.csv  # ← updated datastore
 
 settings:
-  default_datastore: azureml:workspaceblobstore
+  default_datastore: azureml:newblobstorepipeline
   default_compute: azureml:cpu-cluster
-  continue_on_step_failure: false
   force_rerun: true
+  continue_on_step_failure: false
 
 jobs:
   prep_data:
