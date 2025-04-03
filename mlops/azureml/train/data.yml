@@ -1,6 +1,6 @@
 $schema: https://azuremlschemas.azureedge.net/latest/data.schema.json
 
 type: uri_folder
-name: cars_data # Provide the name for the dataset, related to used cars
+name: cars_data_f1 # Provide the name for the dataset, related to used cars
 description: Used cars data set # Provide the description for the dataset, related to used cars
-path: azureml://datastores/newblobstorepipeline/paths/cars_data.csv  # ← updated datastore
+path: azureml://datastores/newblobstorepipeline/paths/cars_data_f1.csv  # ← updated datastore
