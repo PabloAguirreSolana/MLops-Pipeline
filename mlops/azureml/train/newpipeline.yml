@@ -13,13 +13,13 @@ inputs:
 outputs:
   train_data:
     type: uri_folder
-    path: azureml://datastores/newblobstorepipeline/paths/cars_data.csv  # ← updated datastore
+    path: azureml://datastores/newblobstorepipeline/paths/train_data_$(RunId)/  # Using $(RunId) for dynamic folder path
   test_data:
     type: uri_folder
-    path: azureml://datastores/newblobstorepipeline/paths/cars_data.csv  # ← updated datastore
+    path: azureml://datastores/newblobstorepipeline/paths/test_data_$(RunId)/  # Using $(RunId) for dynamic folder path
   model_info_output_path:
     type: uri_folder
-    path: azureml://datastores/newblobstorepipeline/paths/cars_data.csv  # ← updated datastore
+    path: azureml://datastores/newblobstorepipeline/paths/model_info_$(RunId)/  # Using $(RunId) for dynamic folder path
 
 settings:
   default_datastore: azureml:newblobstorepipeline
