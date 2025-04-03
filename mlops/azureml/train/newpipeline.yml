@@ -1,13 +1,13 @@
 $schema: https://azuremlschemas.azureedge.net/latest/pipelineJob.schema.json
 type: pipeline
-display_name: pipeline_v1
-experiment_name: pipeline_v1
+display_name: pipeline_f1
+experiment_name: pipeline_f1
 description: Pipeline for data preprocessing, model training, hyperparameter sweep, and registration
 
 inputs:
   raw_data:                         # <<< changed from uri_folder to uri_file
     type: uri_file                  # <<< matches your data.yml type now
-    path: azureml:cars_data@latest
+    path: azureml:cars_data_f1@latest
   model_name: "used_cars_price_prediction_model"   # <<< added: moved out of job as pipeline input
 
 outputs:
