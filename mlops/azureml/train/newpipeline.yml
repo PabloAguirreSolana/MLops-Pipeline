@@ -1,36 +1,36 @@
 $schema: https://azuremlschemas.azureedge.net/latest/pipelineJob.schema.json
 type: pipeline
-display_name: pipeline_v1 # Provide the display name for the pipeline
-experiment_name: pipeline_v1  # Provide the experiment name
-description: Pipeline for data preprocessing, model training, hyperparameter sweep, and registration  # Provide the description for the pipeline
-
+display_name: pipeline_v1
+experiment_name: pipeline_v1
+description: Pipeline for data preprocessing, model training, hyperparameter sweep, and registration
 
 inputs:
-  raw_data:
-    type: uri_file
+  raw_data:                         # <<< changed from uri_folder to uri_file
+    type: uri_file                  # <<< matches your data.yml type now
     path: azureml:cars_data@latest
+  model_name: "used_cars_price_prediction_model"   # <<< added: moved out of job as pipeline input
 
 outputs:
   train_data:
     type: uri_folder
-    path: azureml://datastores/workspaceblobstore/paths/train_data_$(RunId)/  # Dynamic path for train data
+    path: azureml://datastores/workspaceblobstore/paths/train_data_$(RunId)/
   test_data:
     type: uri_folder
-    path: azureml://datastores/workspaceblobstore/paths/test_data_$(RunId)/  # Dynamic path for test data
+    path: azureml://datastores/workspaceblobstore/paths/test_data_$(RunId)/
   model_info_output_path:
     type: uri_folder
-    path: azureml://datastores/workspaceblobstore/paths/model_info_$(RunId)/  # Dynamic path for model info
+    path: azureml://datastores/workspaceblobstore/paths/model_info_$(RunId)/
 
 settings:
   default_datastore: azureml:workspaceblobstore
   default_compute: azureml:cpu-cluster
   continue_on_step_failure: false
-  force_rerun: true  # Force rerun to bypass caching
+  force_rerun: true
 
 jobs:
   prep_data:
-    name: prep_data  # Provide the job name
-    display_name: prep-data  # Provide the display name for the job
+    name: prep_data
+    display_name: prep-data
     code: ../../../data-science/src
     command: >-
       python prep.py  
@@ -39,30 +39,30 @@ jobs:
       --test_data ${{outputs.test_data}} 
     environment: azureml:used-cars-train-env@latest
     inputs:
-      raw_data: ${{parent.inputs.raw_data}}
+      raw_data: ${{parent.inputs.raw_data}}          # <<< stays the same
     outputs:
       train_data: ${{parent.outputs.train_data}}
       test_data: ${{parent.outputs.test_data}}
 
   sweep_step:
     name: sweep_job
-    display_name: sweep-job  # Hint: Provide the display name for the job
+    display_name: sweep-job
     type: sweep
     inputs:
       train_data: ${{parent.jobs.prep_data.outputs.train_data}}
       test_data: ${{parent.jobs.prep_data.outputs.test_data}}
     outputs:
       model_output:
-        type: mlflow_model
-    sampling_algorithm: random  # Specify the sampling algorithm
-    trial: ./train.yml  # Refers to a separate command component
+        type: mlflow_model                             # <<< stays valid
+    sampling_algorithm: random
+    trial: ./train.yml
     search_space:
       n_estimators:
         type: choice
         values: [10, 15]
       max_depth:
-        type: choice  # Specify the type for max_depth
-        values: [3,5]  # Provide the values for max_depth
+        type: choice
+        values: [3, 5]
     objective:
       goal: minimize
       primary_metric: MSE
@@ -71,23 +71,18 @@ jobs:
       max_concurrent_trials: 2
       timeout: 3600
 
-
   register_model:
-    name: registermod_v1  # Provide the job name
-    display_name: register-modelv1  # Provide the display name for the job
+    name: registermod_v1
+    display_name: register-modelv1
     code: ../../../data-science/src
     command: >-
       python register.py 
-      --model_name ${{inputs.model_name}} 
+      --model_name ${{inputs.model_name}}               # <<< changed from inputs to parent.inputs
       --model_path ${{inputs.model_path}} 
       --model_info_output_path ${{outputs.model_info_output_path}}
     environment: azureml:cars-train-env@latest
     inputs:
-      model_name: 
-        type: literal 
-        value: "used_cars_price_prediction_model"
-      model_path: ${{parent.jobs.sweep_step.outputs.model_output}}  
+      model_name: ${{parent.inputs.model_name}}         # <<< changed from type: literal + value
+      model_path: ${{parent.jobs.sweep_step.outputs.model_output}}  # <<< stays correct
     outputs:
-      model_info_output_path: ${{parent.outputs.model_info_output_path}}  
-
-
+      model_info_output_path: ${{parent.outputs.model_info_output_path}}
